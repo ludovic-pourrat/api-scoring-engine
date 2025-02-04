@@ -12,7 +12,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "Lombard Odier",
+  "license": "Apche 2 License",
   "devDependencies": {
     "@babel/preset-typescript": "7.26.0",
     "@stoplight/spectral-owasp-ruleset": "2.0.1",
