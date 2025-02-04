@@ -1,10 +1,10 @@
 import {Router} from "express";
 import multer from "multer";
-import {APIEngineController} from "../controllers/api.engine.controller";
+import {APIEngineController} from "../controllers/api.scoring.controller";
 
 class EngineRoutes {
     router = Router();
-    APIEngineController = new APIEngineController();
+    APIScoringController = new APIScoringController();
     upload = multer();
 
     constructor() {
@@ -13,7 +13,7 @@ class EngineRoutes {
 
     intializeRoutes() {
 
-        this.router.post("/score", this.upload.none(), this.APIEngineController.score);
+        this.router.post("/score", this.upload.none(), this.APIScoringController.score);
 
     }
 }
