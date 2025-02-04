@@ -84,7 +84,7 @@ export async function computeAPIScore(specification: string): Promise<Score> {
     const maxMockingReadinessScore = await getMockingReadinessMaximalScore(specification);
 
     const categories: Category[] = await Promise.all([
-        computeScore(specification, "lombard-odier/.spectral.yaml", maxAPIScore, "Compliance", "x-api-compliance"),
+        computeScore(specification, "conformance/.spectral.yaml", maxAPIScore, "Compliance", "x-api-compliance"),
         computeScore(specification, "dx/.spectral.yaml", maxDXScore, "Developer Experience", "x-api-dx"),
         computeScore(specification, "mocking-readiness/.spectral.yaml", maxMockingReadinessScore, "Mocking Readiness", "x-api-mocking-readiness")
     ]);
