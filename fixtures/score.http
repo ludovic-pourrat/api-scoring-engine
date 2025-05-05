@@ -1,0 +1,20 @@
+### Score an API
+POST http://localhost:3000/engine/score
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="content";
+Content-Type: application/x-yaml
+
+< ./cff/user-journey-map.yaml
+
+--WebAppBoundary
+content-Disposition: form-data; name="name"
+Content-Type: text/plain
+
+user-journey-map
+
+--WebAppBoundary--
+
+
+###

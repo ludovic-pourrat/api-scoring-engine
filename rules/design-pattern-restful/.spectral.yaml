@@ -1,0 +1,15 @@
+formats:
+  - oas3
+
+extends: []
+
+functions:
+  - match
+
+rules:
+  design-pattern-restful-api-body-matching:
+    description: "Ensure request body and response use the same schema reference."
+    severity: error
+    given: "$.paths.*.*"
+    then:
+      function: match

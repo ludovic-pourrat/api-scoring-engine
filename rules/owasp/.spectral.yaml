@@ -1,0 +1,7 @@
+#
+# OWASP Ruleset
+#
+formats:
+  - oas3
+
+extends: ["@stoplight/spectral-owasp-ruleset"]

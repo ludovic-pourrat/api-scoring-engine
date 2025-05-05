@@ -1,0 +1,1188 @@
+openapi: "3.0.1"
+info:
+  title: "Journey Maps"
+  contact:
+    name: "ROKAS Team"
+    email: "rokas@sbb.ch"
+  license:
+    name: "SBB"
+    url: "https://developer.sbb.ch/license"
+  version: "1.281.0"
+  description: |
+    The SBB Journey Maps API offers an enriched geographical representation of journeys, encompassing both public transport and footpaths, enhanced by ROKAS's advanced pedestrian routing. 
+
+    The API is designed for internal SBB consumers and approved contractors, providing detailed journey visualizations that integrate public transportation routes with optimized pedestrian paths. 
+
+    While specific details about the domain model are limited in the available documentation, the API likely includes data structures representing various elements of a journey, such as:
+
+    - **Stops**: Locations where passengers can board or alight from public transport.
+    - **Routes**: Paths that public transport vehicles follow between stops.
+    - **Footpaths**: Pedestrian pathways connecting different transport modes or destinations.
+    - **Schedules**: Timetables detailing the arrival and departure times of transport services.
+    - **Geographical Coordinates**: Latitude and longitude data points for mapping purposes.
+
+    The integration of ROKAS's enhanced pedestrian routing suggests that the API provides optimized walking directions, taking into account factors such as distance, terrain, and accessibility.
+
+    ROKAS is an advanced pedestrian routing system developed by the Swiss Federal Railways (SBB) to enhance journey planning by providing optimized walking directions. It integrates detailed geographical data to offer enriched representations of journeys, combining public transport routes with pedestrian pathways. This system is particularly beneficial in urban areas, where pedestrians may encounter various obstacles when navigating from one place to another. 
+    DEVELOPER.SBB.CH
+
+    The ROKAS-enhanced routing takes into account factors such as pedestrian-only areas, sidewalks, crosswalks, and pedestrian-friendly intersections. It may also consider other factors such as stairs, which may be useful for wheelchair accessibility. By incorporating these elements, ROKAS aims to provide users with the most efficient and safe walking routes, complementing public transportation options. 
+    OSMAND.NET
+
+externalDocs:
+  description: "Confluence Documentation"
+  url: "https://confluence.sbb.ch/display/KIS/Journey-Maps"
+servers:
+- url: "https://journey-maps-int.api.sbb.ch:443"
+  description: "Integration"
+- url: "https://journey-maps.api.sbb.ch:443"
+  description: "Production"
+tags:
+- name: "Journey API"
+  description: "Provides an enriched geographical representation of a journey - public\
+    \ transport and footpath - including ROKAS enhanced pedestrian routing."
+- name: "Master Data API"
+  description: "Provides geographical data with meta informations."
+- name: "Route API"
+  description: "Provides a geographical representation of a train route from start\
+    \ to destination with optional vias."
+- name: "Transfer API"
+  description: "Provides an enriched geographical representation of a transfer including\
+    \ ROKAS enhanced pedestrian routing."
+paths:
+  /v1/journey:
+    get:
+      deprecated: true
+      tags:
+      - "Journey API"
+      summary: "Provides an enriched geographical representation of a journey - public\
+        \ transport and footpath - including ROKAS enhanced pedestrian routing."
+      operationId: "journeyGet"
+      parameters:
+      - in: "query"
+        name: "ctx"
+        schema:
+          type: "string"
+        required: true
+        description: "Reconstruction context. Unique identification of a connection.\
+          \ Reconstruction context can be retrieved from a previously requested connection\
+          \ list (\"Verbindungsabfrage\"). Use base64 encoding, or at least UTF-8\
+          \ and URL encoding. Example: T%24A%3D1%40O%3DLuzern%2C+Wey%40X%3D8312721%40Y%3D47055770%40L%3D8581978%40a%3D128%40%24A%3D1%40O%3DLuzern%2C+Bahnhof%40X%3D8310249%40Y%3D47050754%40L%3D8508450%40a%3D128%40%24201806131347%24201806131352%24NFO+7+++%24%241%24%C2%A7W%24A%3D1%40O%3DLuzern%2C+Bahnhof%40X%3D8310249%40Y%3D47050754%40L%3D8508450%40a%3D128%40%24A%3D1%40O%3DLuzern%40X%3D8310168%40Y%3D47050170%40L%3D8505000%40a%3D128%40%24201806131352%24201806131357%24%24%241%24%C2%A7T%24A%3D1%40O%3DLuzern%40X%3D8310168%40Y%3D47050170%40L%3D8505000%40a%3D128%40%24A%3D1%40O%3DBern%40X%3D7439122%40Y%3D46948825%40L%3D8507000%40a%3D128%40%24201806131400%24201806131500%24IR+15+++%24%241%24%C2%A7W%24A%3D1%40O%3DBern%40X%3D7439122%40Y%3D46948825%40L%3D8507000%40a%3D128%40%24A%3D1%40O%3DBern%2C+Bahnhof%40X%3D7440210%40Y%3D46948106%40L%3D8576646%40a%3D128%40%24201806131500%24201806131506%24%24%241%24%C2%A7T%24A%3D1%40O%3DBern%2C+Bahnhof%40X%3D7440210%40Y%3D46948106%40L%3D8576646%40a%3D128%40%24A%3D1%40O%3DBern%2C+Kursaal%40X%3D7449612%40Y%3D46952889%40L%3D8590020%40a%3D128%40%24201806131507%24201806131511%24NFT+9+++%24%241%24"
+      - in: "query"
+        name: "lang"
+        schema:
+          type: "string"
+          enum:
+          - "de"
+          - "en"
+          - "fr"
+          - "it"
+        required: true
+        description: "Language. Example value: de"
+      - in: "query"
+        name: "accessible"
+        schema:
+          type: "boolean"
+          default: false
+        required: false
+        description: "Whether the transfer-routes should consider accessibility."
+      - in: "query"
+        name: "includeSituations"
+        schema:
+          type: "boolean"
+          default: false
+        required: false
+        description: "Include route situation-messages as features, concerning public\
+          \ transportation (aka HIM, de:Betriebslage und Störungen)."
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureCollection"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "406":
+          $ref: "#/components/responses/BadAccept"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+    post:
+      tags:
+      - "Journey API"
+      summary: "Provides an enriched geographical representation of a journey - public\
+        \ transport and footpath - including ROKAS enhanced pedestrian routing."
+      operationId: "journeyPost"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JourneyRequest"
+        required: true
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureCollection"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "406":
+          $ref: "#/components/responses/BadAccept"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /v1/master-data/zone:
+    get:
+      tags:
+      - "Master Data API"
+      summary: "Provides geographical representations of fare network zones."
+      operationId: "zoneGet"
+      parameters:
+      - in: "query"
+        name: "filter"
+        schema:
+          type: "string"
+        description: "Comma-separated list of partnercode_id:zone_id pairs for which\
+          \ to retrieve zone information"
+        example: "446:100:,446:101:,446:150:"
+      - in: "query"
+        name: "from"
+        schema:
+          type: "string"
+        description: "Valid-from filter in %Y-%m-%d format"
+        example: "2023-02-14"
+      - in: "query"
+        name: "to"
+        schema:
+          type: "string"
+        description: "Valid-from filter in %Y-%m-%d format"
+        example: "2023-02-14"
+      - name: "type"
+        in: "query"
+        description: "Zone-type filter"
+        required: false
+        schema:
+          type: "string"
+          enum:
+          - "ABO"
+          - "TICKET"
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureCollection"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "406":
+          $ref: "#/components/responses/BadAccept"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /v1/master-data/stations/{station}/platforms/{platform}/midpoint:
+    get:
+      tags:
+      - "Master Data API"
+      summary: "Calculates the midpoint of an entire platform or of its sectors."
+      operationId: "mitpointGet"
+      parameters:
+      - in: "path"
+        name: "station"
+        required: true
+        schema:
+          type: "number"
+        description: "The UIC code of the station"
+        example: 8503000
+      - in: "path"
+        name: "platform"
+        required: true
+        schema:
+          oneOf:
+          - type: "number"
+          - type: "string"
+        description: "The platform number or designation"
+        example: 9
+      - in: "query"
+        name: "sectors"
+        required: false
+        schema:
+          type: "string"
+        description: "Comma-separated list of sectors for which to calculate the midpoint.\
+          \ If none is provided, the midpoint of the platform will be returned."
+        example: "A,B"
+      - in: "query"
+        name: "nearby-sector"
+        required: false
+        schema:
+          type: "string"
+        description: "Providing this parameter in addition to the 'sectors' parameter\
+          \ will shift the returned midpoint half-way in the direction of the provided\
+          \ parameter."
+        example: "C"
+      - in: "query"
+        name: "details"
+        required: false
+        schema:
+          type: "boolean"
+          default: false
+        description: "Setting this parameter to true will provide, in addition to\
+          \ the midpoint feature, additional features containing the polygon of the\
+          \ combined 'sectors' areas as well as the polygon of the 'nearby-sector'\
+          \ (if requested)"
+        example: true
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureCollection"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "406":
+          $ref: "#/components/responses/BadAccept"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /v1/master-data/stations/{station}/platforms/{platform}/platform-info:
+    get:
+      tags:
+      - "Master Data API"
+      summary: "Calculates the midpoint of an entire platform or of its sectors\n\
+        as well as the floor-connectors that are reachable from this midpoint.\nThe\
+        \ direction to the floor connectors is either LEFT, RIGHT, or NONE, and is\n\
+        calculated from the perspective of someone exiting the train\nat the position\
+        \ of the calculated midpoint.\n"
+      operationId: "platformInfoGet"
+      parameters:
+      - in: "path"
+        name: "station"
+        required: true
+        schema:
+          type: "number"
+        description: "The UIC code of the station"
+        example: 8503000
+      - in: "path"
+        name: "platform"
+        required: true
+        schema:
+          oneOf:
+          - type: "number"
+          - type: "string"
+        description: "The platform number or designation"
+        example: 9
+      - in: "query"
+        name: "sectors"
+        required: false
+        schema:
+          type: "string"
+        description: "Comma-separated list of sectors for which to calculate the midpoint.\
+          \ If none is provided, the midpoint of the platform will be returned."
+        example: "A,B"
+      - in: "query"
+        name: "nearby-sector"
+        required: false
+        schema:
+          type: "string"
+        description: "Providing this parameter in addition to the 'sectors' parameter\
+          \ will shift the returned midpoint half-way in the direction of the provided\
+          \ parameter."
+        example: "C"
+      - in: "query"
+        name: "floor-connector-types"
+        required: false
+        schema:
+          type: "array"
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/FloorConnectorType"
+        description: "Comma-separated list of floor-connector types to return. If\
+          \ none is provided, all available types will be returned."
+        example: "STAIR,RAMP"
+        explode: false
+      - in: "query"
+        name: "details"
+        required: false
+        schema:
+          type: "boolean"
+          default: false
+        description: "Setting this parameter to true will provide, in addition to\
+          \ the midpoint feature and the floor-connectors, additional features containing\
+          \ the polygon of the combined 'sectors' areas, the polygon of the 'nearby-sector'\
+          \ (if requested), and the linestring of the track"
+        example: true
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureCollection"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "406":
+          $ref: "#/components/responses/BadAccept"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /v1/master-data/stations/{station}/platforms/{platform}/floor-connectors:
+    get:
+      tags:
+      - "Master Data API"
+      summary: "Provides all floor connectors in a stations on a specific platform\
+        \ (de: Gleis)."
+      operationId: "floorConnectorsGet"
+      parameters:
+      - in: "path"
+        name: "station"
+        required: true
+        schema:
+          type: "integer"
+        description: "Station's UIC code"
+        example: "8507000"
+      - in: "path"
+        name: "platform"
+        required: true
+        schema:
+          type: "integer"
+        description: "Platform (de:Gleis) number"
+        example: "2"
+      - in: "query"
+        name: "types"
+        schema:
+          type: "array"
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/FloorConnectorType"
+        description: "Comma-separated list of FloorConnectorType which to retrieve"
+        example: "STAIR,RAMP"
+        explode: false
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/FeatureCollection"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "406":
+          $ref: "#/components/responses/BadAccept"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /v1/route:
+    get:
+      tags:
+      - "Route API"
+      summary: "Provides a geographical representation of a train route from start\
+        \ to destination with optional vias."
+      operationId: "routeGet"
+      parameters:
+      - in: "query"
+        name: "calculateMidpoint"
+        schema:
+          type: "boolean"
+        description: "Whether to calculate and return the midpoint of the route."
+      - in: "query"
+        name: "fromStationID"
+        schema:
+          type: "integer"
+          format: "int32"
+        description: "UIC / DIDOK code of start."
+        example: 8503000
+      - in: "query"
+        name: "generalization"
+        schema:
+          type: "boolean"
+        description: "Whether to calculate and return the 4 generalized routes."
+      - in: "query"
+        name: "mot"
+        schema:
+          $ref: "#/components/schemas/Mot"
+        description: "Mode of transport"
+      - in: "query"
+        name: "toStationID"
+        schema:
+          type: "integer"
+          format: "int32"
+        description: "UIC / DIDOK code of destination."
+        example: 8503000
+      - in: "query"
+        name: "accessible"
+        schema:
+          type: "boolean"
+          default: false
+        required: false
+        description: "Whether the footpaths should consider accessibility."
+      - in: "query"
+        name: "via"
+        schema:
+          type: "string"
+        description: "A pipe separated list of hops. A hop describes a station with\
+          \ either\n- a name or abbreviation\n- a station id, prefixed with `!`\n\
+          - comma-seperated coordinates starting with geographic latitude followed\
+          \ by longitude, prefixed with `@`\n- an additional platform code, prefixed\
+          \ with `$`\n- for a mot \"foot\" request, positions can be used, prefixed\
+          \ with `~`\n\nStation names do not need to match exactly the names in the\
+          \ database that is used for routing. The correct names are searched for\
+          \ by simple normalization, by lookup of synonyms or abbreviation as well\
+          \ as fuzzy algorithms.\n\nThe usage of different schemes of IDs used by\
+          \ the transit agencies is handled to a large part. A station can be found\
+          \ by all IDs that we know for it. E.g. the station Basel Bad can be found\
+          \ with the ID 8500090 that is used by Swiss Federal Railways SBB and by\
+          \ 8518816, the number used by German Railways DB. Also the usage of numbers\
+          \ used by the UIC is supported for many stations. If you need an additional\
+          \ numbering scheme please contact us.\n\nNote on coordinates: If you do\
+          \ not prefix the coordinate pair with `@`, no snapping to the next station\
+          \ is performed. Instead the route will forcefully traverse the specified\
+          \ point.\n\nNote on mot's \"foot\" and \"car\":\nSome features might not\
+          \ be available, such as \"line-from\", \"line-to\", because they dont apply\
+          \ to those means of transport.\nBy mot \"foot\" only this input is used\n\
+          \nExamples for a single hop:\n- `@47.37811,8.53935` a station at position\
+          \ 47.37811, 8.53935 (snapped)\n- `~47.00009,6.93472` a position\n- `basel\
+          \ sbb` a station named \"basel sbb\"\n- `ZUE`, station \"Zürich HB\" by\
+          \ its common abbreviation\n- `Zürich Hauptbahnhof` or `HBF Zürich` are all\
+          \ valid synonyms für \"Zürich HB\"\n- `!8596126` a station with id 8596126\n\
+          - `basel sbb$4` track 4 in a station \"Basel SBB\"\n- `@47.37811,8.53935$4`\
+          \ track 4 in a station at position 47.37811, 8.53935\n- `zürich hb@47.37811,8.53935$8`\
+          \ track 8 in station \"Zürich HB\" at position 47.37811, 8.53935\n\nExample\
+          \ for a valid via with three hops:\n- `freiburg|basel%20sbb|bern` - from\
+          \ Freiburg (Breisgau) Hbf via Basel SBB to Bern\n"
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureCollection"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "406":
+          $ref: "#/components/responses/BadAccept"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /v1/routes:
+    post:
+      tags:
+      - "Route API"
+      summary: "Provides a geographical representation of a train route from start\
+        \ to destination with optional vias."
+      operationId: "getRoutes"
+      requestBody:
+        description: "List of route requests. See /route for more details."
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/RouteRequest"
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                additionalProperties:
+                  $ref: "#/components/schemas/FeatureCollection"
+                example:
+                  "1188145":
+                    type: "FeatureCollection"
+                    bbox:
+                    - 7.4384644
+                    - 46.9493093
+                    - 8.5372249
+                    - 47.4380258
+                    features:
+                    - {}
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "406":
+          $ref: "#/components/responses/BadAccept"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /v1/service-points-in-use:
+    get:
+      tags:
+      - "Transfer API"
+      summary: "Provides the list of service points with detailed data."
+      operationId: "servicePointsInUseUsingGET"
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JsonServicePointsInUse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "406":
+          $ref: "#/components/responses/BadAccept"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /v1/transfer:
+    get:
+      tags:
+      - "Transfer API"
+      summary: "Provides an enriched geographical representation of a transfer including\
+        \ ROKAS enhanced pedestrian routing."
+      description: "Try it: https://journey-maps.api.sbb.ch:443/v1/transfer?client=sbb-mobile-web-prod&clientVersion=1&crs=4326&fromDirection=Horw%2C%20Biregghof&fromLine=7&fromName=Luzern%2C%20Bahnhof&fromStationID=8508450&fromTrack=A&fromTransportType=bus&lang=de&toDirection=Emmenbr%C3%BCcke%2C%20Sprengi&toLine=2&toName=Luzern%2C%20Bahnhof&toStationID=8508450&toTrack=F&toTransportType=bus"
+      operationId: "transferGet"
+      parameters:
+      - in: "query"
+        name: "client"
+        schema:
+          type: "string"
+        required: true
+        description: "Client identifier"
+        examples:
+          webshop:
+            value: "webshop"
+          ios:
+            value: "ios"
+          android:
+            value: "android"
+      - in: "query"
+        name: "clientVersion"
+        schema:
+          type: "string"
+        required: true
+        description: "Useful for mobile clients. Example values: \"latest\", \"4.3\""
+      - in: "query"
+        name: "fromSectorLabels"
+        schema:
+          type: "array"
+          items:
+            type: "string"
+        description: "Origin sector labels. (Default: all available sectors for the\
+          \ given track are used).\n"
+        example:
+        - "A"
+        - "B"
+      - in: "query"
+        name: "fromDirection"
+        schema:
+          type: "string"
+        description: "train / bus direction"
+        examples:
+          Zürich:
+            value: "Zürich"
+          Enge:
+            value: "Enge"
+      - in: "query"
+        name: "fromIsDisruption"
+        schema:
+          type: "boolean"
+          default: false
+        description: "If true, lookup route departure using rail replacement plan."
+      - in: "query"
+        name: "fromLatLng"
+        schema:
+          type: "string"
+        description: "Position. Required if `fromStationIDParam` is not in Switzerland\
+          \ (e.g. 8721202) or not valid."
+        example: "46.949722,7.439444"
+      - in: "query"
+        name: "fromLine"
+        schema:
+          type: "string"
+        description: "train / bus line"
+        examples:
+          S4:
+            value: "S4"
+          "31":
+            value: "31"
+      - in: "query"
+        name: "fromName"
+        schema:
+          type: "string"
+        description: "Station Name"
+        example: "Bern, Bahnhof"
+      - in: "query"
+        name: "fromStationID"
+        schema:
+          type: "integer"
+          format: "int32"
+        description: "UIC / DIDOK code of start."
+        example: 8503000
+      - in: "query"
+        name: "fromTrack"
+        schema:
+          type: "string"
+        description: "Origin Gleis / Buskante"
+        examples:
+          "3":
+            value: "3"
+          "6a":
+            value: "6a"
+          "41/42":
+            value: "41/42"
+          "3AB":
+            value: "3AB"
+      - in: "query"
+        name: "fromTransportType"
+        schema:
+          $ref: "#/components/schemas/TransportType"
+        description: "Transport type"
+        example: "train"
+      - in: "query"
+        name: "lang"
+        required: true
+        schema:
+          type: "string"
+          enum:
+          - "de"
+          - "en"
+          - "fr"
+          - "it"
+        description: "Language"
+        example: "de"
+      - in: "query"
+        name: "toDirection"
+        schema:
+          type: "string"
+        description: "train / bus direction"
+        examples:
+          Zürich:
+            value: "Zürich"
+          Enge:
+            value: "Enge"
+      - in: "query"
+        name: "toIsDisruption"
+        schema:
+          type: "boolean"
+          default: false
+        description: "If true, lookup route destination using rail replacement plan."
+      - in: "query"
+        name: "toLatLng"
+        schema:
+          type: "string"
+        description: "Position. Required if `toStationIDParam` is not in Switzerland\
+          \ (e.g. 8721202) or not valid."
+        example: "46.949722,7.439444"
+      - in: "query"
+        name: "toLine"
+        schema:
+          type: "string"
+        description: "train / bus line"
+        examples:
+          S4:
+            value: "S4"
+          "31":
+            value: "31"
+      - in: "query"
+        name: "toName"
+        schema:
+          type: "string"
+        description: "Station Name"
+        example: "Bern, Bahnhof"
+      - in: "query"
+        name: "toSectorLabels"
+        schema:
+          type: "array"
+          items:
+            type: "string"
+        description: "Destination sector labels. (Default: all available sectors for\
+          \ the given track are used)"
+        example:
+        - "A"
+        - "B"
+      - in: "query"
+        name: "toStationID"
+        schema:
+          type: "integer"
+          format: "int32"
+        description: "UIC / DIDOK code of destination."
+        example: 8503000
+      - in: "query"
+        name: "toTrack"
+        schema:
+          type: "string"
+        description: "Destination Gleis / Buskante"
+        examples:
+          "3":
+            value: "3"
+          "6a":
+            value: "6a"
+          "41/42":
+            value: "41/42"
+          "3AB":
+            value: "3AB"
+      - in: "query"
+        name: "toTransportType"
+        schema:
+          $ref: "#/components/schemas/TransportType"
+        description: "Transport type"
+        example: "train"
+      - in: "query"
+        name: "accessible"
+        schema:
+          type: "boolean"
+          default: false
+        required: false
+        description: "Whether the transfer should consider accessibility."
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureCollection"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "406":
+          $ref: "#/components/responses/BadAccept"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /util/stop-places/import:
+    post:
+      tags:
+      - "StopPlaces Admin"
+      summary: "Import Stop Places in a new version."
+      operationId: "stopPlacesImport"
+      responses:
+        "202":
+          description: "success"
+        "500":
+          description: "server error"
+  /util/stop-places/patch:
+    post:
+      tags:
+      - "StopPlaces Admin"
+      summary: "Patch Stop Places in current active version."
+      operationId: "stopPlacesPatch"
+      responses:
+        "202":
+          description: "success"
+        "500":
+          description: "server error"
+security:
+- ApiKeyQuery: []
+- ApiKeyHeader: []
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api_key"
+    ApiKeyHeader:
+      type: "apiKey"
+      in: "header"
+      name: "X-API-Key"
+  schemas:
+    RouteRequest:
+      type: "object"
+      properties:
+        calculateMidpoint:
+          type: "boolean"
+        fromStationId:
+          type: "integer"
+          format: "int32"
+        generalization:
+          type: "boolean"
+        mot:
+          $ref: "#/components/schemas/Mot"
+        routeIdentifier:
+          type: "string"
+          pattern: "[\\d\\w-]+"
+        toStationId:
+          type: "integer"
+          format: "int32"
+        via:
+          type: "string"
+        accessible:
+          type: "boolean"
+          default: false
+          description: "Whether the footpaths should consider accessibility."
+    Mot:
+      type: "string"
+      enum:
+      - "bus"
+      - "car"
+      - "ferry"
+      - "foot"
+      - "funicular"
+      - "gondola"
+      - "rail"
+      - "subway"
+      - "tram"
+    TransportType:
+      type: "string"
+      enum:
+      - "bus"
+      - "boat"
+      - "funicular"
+      - "gondola"
+      - "train"
+      - "tram"
+    JsonServicePointsInUse:
+      type: "object"
+      properties:
+        servicePointsInUse:
+          type: "array"
+          items:
+            type: "integer"
+            format: "int32"
+    FloorConnectorType:
+      type: "string"
+      enum:
+      - "STAIR"
+      - "RAMP"
+      - "ELEVATOR"
+      - "ESCALATOR"
+      - "UNKNOWN"
+    Error:
+      description: "Error detail to be returned if 4xx/5xx, according to [RFC-7807](https://tools.ietf.org/html/rfc7807)"
+      type: "object"
+      properties:
+        message:
+          type: "string"
+          description: "A short, human-readable summary of the problem type"
+        status:
+          type: "integer"
+          description: "Http status code of the error (4xx/5xx) problem."
+      required:
+      - "message"
+      - "status"
+    GeoJsonObject:
+      description: "GeoJSon object\nThe coordinate reference system for all GeoJSON\
+        \ coordinates is a geographic coordinate reference system, using the World\
+        \ Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of\
+        \ decimal degrees. This is equivalent to the coordinate reference system identified\
+        \ by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element\
+        \ SHALL be the height in meters above or below the WGS 84 reference ellipsoid.\
+        \ In the absence of elevation values, applications sensitive to height or\
+        \ depth SHOULD interpret positions as being at local ground or sea level.\n"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3"
+      type: "object"
+      properties:
+        type:
+          type: "string"
+          enum:
+          - "Feature"
+          - "FeatureCollection"
+          - "Point"
+          - "MultiPoint"
+          - "LineString"
+          - "MultiLineString"
+          - "Polygon"
+          - "MultiPolygon"
+          - "GeometryCollection"
+        bbox:
+          description: "A GeoJSON object MAY have a member named \"bbox\" to include\
+            \ information on the coordinate range for its Geometries, Features, or\
+            \ FeatureCollections. The value of the bbox member MUST be an array of\
+            \ length 2*n where n is the number of dimensions represented in the contained\
+            \ geometries, with all axes of the most southwesterly point followed by\
+            \ all axes of the more northeasterly point. The axes order of a bbox follows\
+            \ the axes order of geometries.\n"
+          type: "array"
+          items:
+            type: "number"
+      required:
+      - "type"
+      discriminator:
+        propertyName: "type"
+    Geometry:
+      description: "Abstract type for all GeoJSon object except Feature and FeatureCollection\n"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3"
+      allOf:
+      - $ref: "#/components/schemas/GeoJsonObject"
+      - type: "object"
+        properties:
+          type:
+            type: "string"
+            enum:
+            - "Point"
+            - "MultiPoint"
+            - "LineString"
+            - "MultiLineString"
+            - "Polygon"
+            - "MultiPolygon"
+            - "GeometryCollection"
+        required:
+        - "type"
+        discriminator:
+          propertyName: "type"
+    GeometryElement:
+      description: "Abstract type for all GeoJSon 'Geometry' object the type of which\
+        \ is not 'GeometryCollection'\n"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3"
+      allOf:
+      - $ref: "#/components/schemas/Geometry"
+      - type: "object"
+        properties:
+          type:
+            type: "string"
+            enum:
+            - "Point"
+            - "MultiPoint"
+            - "LineString"
+            - "MultiLineString"
+            - "Polygon"
+            - "MultiPolygon"
+        required:
+        - "type"
+        discriminator:
+          propertyName: "type"
+    Feature:
+      description: "GeoJSon 'Feature' object"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3.2"
+      allOf:
+      - $ref: "#/components/schemas/GeoJsonObject"
+      - type: "object"
+        required:
+        - "geometry"
+        - "properties"
+        properties:
+          geometry:
+            allOf:
+            - nullable: true
+            - $ref: "#/components/schemas/Geometry"
+          properties:
+            type: "object"
+            nullable: true
+          id:
+            type: "string"
+    FeatureCollection:
+      description: "GeoJSon 'FeatureCollection' object"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3.3"
+      allOf:
+      - $ref: "#/components/schemas/GeoJsonObject"
+      - type: "object"
+        required:
+        - "features"
+        properties:
+          features:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/Feature"
+    Position:
+      description: "GeoJSon fundamental geometry construct.\nA position is an array\
+        \ of numbers. There MUST be two or more elements. The first two elements are\
+        \ longitude and latitude, or easting and northing, precisely in that order\
+        \ and using decimal numbers. Altitude or elevation MAY be included as an optional\
+        \ third element.\nImplementations SHOULD NOT extend positions beyond three\
+        \ elements because the semantics of extra elements are unspecified and ambiguous.\
+        \ Historically, some implementations have used a fourth element to carry a\
+        \ linear referencing measure (sometimes denoted as \"M\") or a numerical timestamp,\
+        \ but in most situations a parser will not be able to properly interpret these\
+        \ values. The interpretation and meaning of additional elements is beyond\
+        \ the scope of this specification, and additional elements MAY be ignored\
+        \ by parsers.\n"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3.1.1"
+      type: "array"
+      minItems: 2
+      maxItems: 3
+      items:
+        type: "number"
+    LineStringCoordinates:
+      description: "GeoJSon fundamental geometry construct, array of two or more positions.\n"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3.1.4"
+      type: "array"
+      items:
+        $ref: "#/components/schemas/Position"
+      minItems: 2
+    LinearRing:
+      description: "A linear ring is a closed LineString with four or more positions.\n\
+        The first and last positions are equivalent, and they MUST contain identical\
+        \ values; their representation SHOULD also be identical.\nA linear ring is\
+        \ the boundary of a surface or the boundary of a hole in a surface.\nA linear\
+        \ ring MUST follow the right-hand rule with respect to the area it bounds,\
+        \ i.e., exterior rings are counterclockwise, and holes are clockwise.\n"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3.1.6"
+      type: "array"
+      items:
+        $ref: "#/components/schemas/Position"
+      minItems: 4
+    Point:
+      description: "GeoJSon geometry"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3.1.2"
+      allOf:
+      - $ref: "#/components/schemas/GeometryElement"
+      - type: "object"
+        required:
+        - "type"
+        - "coordinates"
+        properties:
+          type:
+            type: "string"
+            enum:
+            - "Point"
+          coordinates:
+            $ref: "#/components/schemas/Position"
+    MultiPoint:
+      description: "GeoJSon geometry"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3.1.3"
+      allOf:
+      - $ref: "#/components/schemas/GeometryElement"
+      - type: "object"
+        required:
+        - "coordinates"
+        properties:
+          coordinates:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/Position"
+    LineString:
+      description: "GeoJSon geometry"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3.1.4"
+      allOf:
+      - $ref: "#/components/schemas/GeometryElement"
+      - type: "object"
+        required:
+        - "coordinates"
+        properties:
+          coordinates:
+            $ref: "#/components/schemas/LineStringCoordinates"
+    MultiLineString:
+      description: "GeoJSon geometry"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3.1.5"
+      allOf:
+      - $ref: "#/components/schemas/GeometryElement"
+      - type: "object"
+        required:
+        - "coordinates"
+        properties:
+          coordinates:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/LineStringCoordinates"
+    Polygon:
+      description: "GeoJSon geometry"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3.1.6"
+      allOf:
+      - $ref: "#/components/schemas/GeometryElement"
+      - type: "object"
+        required:
+        - "coordinates"
+        properties:
+          coordinates:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/LinearRing"
+    MultiPolygon:
+      description: "GeoJSon geometry"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3.1.7"
+      allOf:
+      - $ref: "#/components/schemas/GeometryElement"
+      - type: "object"
+        required:
+        - "coordinates"
+        properties:
+          coordinates:
+            type: "array"
+            items:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/LinearRing"
+    GeometryCollection:
+      type: "object"
+      description: "GeoJSon geometry collection\nGeometryCollections composed of a\
+        \ single part or a number of parts of a single type SHOULD be avoided when\
+        \ that single part or a single object of multipart type (MultiPoint, MultiLineString,\
+        \ or MultiPolygon) could be used instead.\n"
+      externalDocs:
+        url: "https://tools.ietf.org/html/rfc7946#section-3.1.8"
+      allOf:
+      - $ref: "#/components/schemas/Geometry"
+      - type: "object"
+        required:
+        - "geometries"
+        properties:
+          geometries:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/GeometryElement"
+            minItems: 0
+    JourneyRequest:
+      description: "Journey request"
+      type: "object"
+      properties:
+        ctx:
+          type: "string"
+          description: "Reconstruction context. Unique identification of a connection.\
+            \ Reconstruction context can be retrieved from a previously requested\
+            \ connection list (\"Verbindungsabfrage\"). Use base64 encoding, or at\
+            \ least UTF-8 and URL encoding. Example: T%24A%3D1%40O%3DLuzern%2C+Wey%40X%3D8312721%40Y%3D47055770%40L%3D8581978%40a%3D128%40%24A%3D1%40O%3DLuzern%2C+Bahnhof%40X%3D8310249%40Y%3D47050754%40L%3D8508450%40a%3D128%40%24201806131347%24201806131352%24NFO+7+++%24%241%24%C2%A7W%24A%3D1%40O%3DLuzern%2C+Bahnhof%40X%3D8310249%40Y%3D47050754%40L%3D8508450%40a%3D128%40%24A%3D1%40O%3DLuzern%40X%3D8310168%40Y%3D47050170%40L%3D8505000%40a%3D128%40%24201806131352%24201806131357%24%24%241%24%C2%A7T%24A%3D1%40O%3DLuzern%40X%3D8310168%40Y%3D47050170%40L%3D8505000%40a%3D128%40%24A%3D1%40O%3DBern%40X%3D7439122%40Y%3D46948825%40L%3D8507000%40a%3D128%40%24201806131400%24201806131500%24IR+15+++%24%241%24%C2%A7W%24A%3D1%40O%3DBern%40X%3D7439122%40Y%3D46948825%40L%3D8507000%40a%3D128%40%24A%3D1%40O%3DBern%2C+Bahnhof%40X%3D7440210%40Y%3D46948106%40L%3D8576646%40a%3D128%40%24201806131500%24201806131506%24%24%241%24%C2%A7T%24A%3D1%40O%3DBern%2C+Bahnhof%40X%3D7440210%40Y%3D46948106%40L%3D8576646%40a%3D128%40%24A%3D1%40O%3DBern%2C+Kursaal%40X%3D7449612%40Y%3D46952889%40L%3D8590020%40a%3D128%40%24201806131507%24201806131511%24NFT+9+++%24%241%24"
+        lang:
+          type: "string"
+          enum:
+          - "de"
+          - "en"
+          - "fr"
+          - "it"
+          description: "Language. Example value: de"
+        accessible:
+          type: "boolean"
+          default: false
+          description: "Whether the transfer-routes should consider accessibility."
+        includeSituations:
+          type: "boolean"
+          default: false
+          description: "Include route situation-messages as features, concerning public\
+            \ transportation (aka HIM, de:Betriebslage und Störungen)."
+      required:
+      - "ctx"
+      - "lang"
+  responses:
+    BadRequest:
+      description: "Bad Request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    BadAccept:
+      description: "Accept must be 'application/json'"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    InternalServerError:
+      description: "Internal server error"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ServiceUnavailable:
+      description: "Service Unavailable"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

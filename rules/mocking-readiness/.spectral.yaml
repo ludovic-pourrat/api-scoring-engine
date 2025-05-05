@@ -1,0 +1,46 @@
+#
+# Developer Experience - Open API Linting Ruleset
+#
+# Open API - 3 standard
+#
+#
+formats:
+  - oas3
+
+rules:
+  
+  mr-parameters-examples-required:
+    description: "Ensure all parameters have examples."
+    message: "{{path}} is missing an example."
+    severity: error
+    given: "$..parameters[?(@ && (@.example !== undefined || @.examples !== undefined))]"
+    then:
+      field: "example"
+      function: truthy
+
+  mr-headers-examples-required:
+    description: "Ensure all headers have examples."
+    message: "{{path}} is missing an example."
+    severity: error
+    given: "$..headers[?(@ && (@.example !== undefined || @.examples !== undefined))]"
+    then:
+      field: "example"
+      function: truthy
+
+  mr-request-bodies-examples-required:
+    description: "Ensure all request bodies have examples."
+    message: "{{path}} is missing an example."
+    severity: error
+    given: "$.paths..requestBodies[?(@ && (@.example !== undefined || @.examples !== undefined))]"
+    then:
+      field: "example"
+      function: truthy
+
+  mr-response-examples-required:
+    description: "Ensure all responses have examples."
+    message: "{{path}} is missing an example."
+    severity: error
+    given: $.paths..responses[?( @property <= 400 || @property > 600)]
+    then:
+      field: "example"
+      function: truthy

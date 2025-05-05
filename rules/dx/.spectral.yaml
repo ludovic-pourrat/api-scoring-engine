@@ -1,0 +1,82 @@
+#
+# Developer Experience - Open API Linting Ruleset
+#
+# Open API - 3 standard
+#
+#
+formats:
+  - oas3
+
+extends: []
+
+rules:
+
+  dx-openapi-must-have-externalDocs:
+    severity: warn
+    description: "OpenAPI specification must contain externalDocs"
+    message: "The OpenAPI root object should define externalDocs."
+    given: "$"
+    then:
+      field: "externalDocs"
+      function: truthy
+
+  dx-descriptions-required:
+    severity: error
+    description: "Ensure the info element has a description."
+    given: "$.info.description"
+    then:
+      function: truthy
+
+  dx-description-info-markdown:
+    severity: warn
+    description: "The description in externalDocs must be in Markdown format."
+    message: "The externalDocs.description should contain Markdown formatting (e.g., `**bold**`, `*italic*`, `[link](url)`)."
+    given: "$.info.description"
+    then:
+      function: pattern
+      functionOptions:
+        match: ".*[*_`\\[\\]().+-].*"
+
+  dx-descriptions-path-operations-required:
+    severity: error
+    description: "Ensure every path operation has a summary and description."
+    given: "$.paths..[get,post,put,delete,patch,options,head,trace]"
+    then:
+      - field: "summary"
+        function: truthy
+      - field: "description"
+        function: truthy
+
+  dx-descriptions-response-descriptions:
+    severity: error
+    description: "Check if error responses have descriptions."
+    given: "$.paths..responses"
+    then:
+      field: "description"
+      function: truthy
+
+  dx-descriptions-response-descriptions-markdown:
+    severity: warn
+    description: "Check if error responses have descriptions."
+    given: "$.paths..responses"
+    then:
+      field: "description"
+      function: pattern
+      functionOptions:
+        match: ".*[*_`\\[\\]().+-].*"
+
+  dx-description-parameters-required:
+    severity: error
+    description: "Ensure every parameter has a description."
+    given: "$.paths..parameters"
+    then:
+      field: "description"
+      function: truthy
+  
+  dx-description-headers-required:
+    severity: error
+    description: "Ensure every header has a description."
+    given: "$.paths..headers"
+    then:
+      field: "description"
+      function: truthy

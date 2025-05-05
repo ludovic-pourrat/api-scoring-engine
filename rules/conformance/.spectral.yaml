@@ -1,0 +1,5 @@
+#
+# Conformance Ruleset
+#
+extends: ["spectral:oas"]
+
